@@ -12,6 +12,9 @@ from os import path
 import pandas as pd
 
 from src.get_league_data import get_champion_names
+from src.get_league_data import get_champion_release_dates
 
 
 champ_names = get_champion_names()
+
+champ_release_dates = get_champion_release_dates()
