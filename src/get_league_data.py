@@ -12,7 +12,8 @@ from os import path
 
 def get_champion_names(scrape=True, save=True):
     """
-    Scrapes champion names from League of Legends Wiki, returns list of names
+    Scrapes champion names from League of Legends Wiki,
+      returns pandas series of names as strings
 
     Parameters
     ----------
@@ -51,7 +52,7 @@ def get_champion_names(scrape=True, save=True):
 def get_champion_release_dates(scrape=True, save=True):
     """
     Scrapes champion release dates from League of Legends Wiki,
-      returns list of names
+      returns pandas series of dates as strings
 
     Parameters
     ----------
@@ -62,7 +63,7 @@ def get_champion_release_dates(scrape=True, save=True):
 
     Returns
     -------
-    names : pandas series
+    dates : pandas series
             Contains champion release dates as strings 'YYYY-MM-DD'
     """
 
@@ -82,3 +83,34 @@ def get_champion_release_dates(scrape=True, save=True):
         dates = []
     
     return dates
+
+
+def get_number_of_skins(scrape=True, save=True):
+    """
+    Scrapes number of champion skins from League of Legends Wiki,
+      returns pandas series of number of skins as integers
+
+    Parameters
+    ----------
+    scrape : boolean
+             Attempt to scrape number of skins for each champion?
+    save   : boolean
+             Save list of number of champion skins to csv file?
+
+    Returns
+    -------
+    names : pandas series
+            Contains number of champion skins as integers
+    """
+
+    if scrape:
+        
+        if save:
+
+    elif path.exists('./data/num_skins.csv'):
+        num_skins = pd.read_csv('./data/num_skins.csv', header=None)
+    else:
+        print('num_skins.csv file cannot be found!')
+        num_skins = []
+    
+    return num_skins
