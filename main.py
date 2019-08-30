@@ -11,7 +11,7 @@ import os.path
 from os import path
 import pandas as pd
 
-from src.get_champion_names import get_champion_names
+from src.get_league_data import get_champion_names
 
 
 champ_names = get_champion_names()

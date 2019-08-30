@@ -44,4 +44,5 @@ def get_champion_names(scrape=True, save=True):
     else:
         print('names.csv file cannot be found!')
         names = []
+    
     return names
