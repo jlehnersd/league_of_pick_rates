@@ -10,8 +10,8 @@ import pandas as pd
 from selenium import webdriver
 import time
 from bs4 import BeautifulSoup
-import os.path
 from os import path
+
 
 def get_champion_names(scrape=True, save=True):
     """
@@ -39,7 +39,7 @@ def get_champion_names(scrape=True, save=True):
         names = [s.split(',')[0] for s in names]
         names = [s.split('\xa0the')[0] for s in names]
         names = pd.Series(names).rename('champion')
-        
+
         if save:
             names.to_csv('./data/champion_names.csv', index=False)
 
@@ -50,7 +50,7 @@ def get_champion_names(scrape=True, save=True):
     else:
         print('champion_names.csv file cannot be found!')
         names = []
-    
+
     return names
 
 
@@ -88,7 +88,7 @@ def get_champion_release_dates(scrape=True, save=True):
     else:
         print('champion_release_dates.csv file cannot be found!')
         dates = []
-    
+
     return dates
 
 
@@ -108,8 +108,8 @@ def get_number_of_skins(names, scrape=True, save=True):
 
     Returns
     -------
-    names : pandas series
-            Contains number of champion skins as integers
+    num_skins : pandas series
+                Contains number of champion skins as integers
     """
 
     if scrape:
@@ -144,3 +144,68 @@ def get_number_of_skins(names, scrape=True, save=True):
         num_skins = []
 
     return num_skins
+
+
+def get_win_rates(scrape=True, save=True):
+    """
+    Scrapes the North American champion win rates on the day this fucntion
+      is executed from op.gg,
+      returns pandas series of champion win rates as floats
+
+    Parameters
+    ----------
+    scrape : boolean
+             Attempt to scrape champion win rates for current day?
+    save   : boolean
+             Save list of champion win rates for current day as csv file?
+
+    Returns
+    -------
+    winrates : pandas series
+               Contains champion win rates for current day as floats
+    """
+
+    if scrape:
+        champstats_url = 'https://na.op.gg/statistics/champion/'
+        today_xpath = '//*[@id="recent_today"]/span/span'
+        winrate_xpath = '//*[@id="rate_win"]/span/span'
+        champ_xpath = '//*[@id="ChampionStatsTable"]/table/thead/tr/th[2]/div'
+
+        driver = webdriver.Chrome()
+        driver.get(champstats_url)
+
+        # Select stats for current day
+        today_button = driver.find_element_by_xpath(today_xpath)
+        today_button.click()
+
+        # Select win rates
+        winrate_button = driver.find_element_by_xpath(winrate_xpath)
+        winrate_button.click()
+
+        # Sort win rates by champion in alphabetical order
+        champion_button = driver.find_element_by_xpath(champ_xpath)
+        champion_button.click()
+        champion_button.click()
+
+        # Scrape win rates
+        winrates = pd.read_html(driver.page_source)[1]
+        winrates = winrates['Win rate']
+
+        driver.close()
+
+        # Convert win rates to float
+        winrates = winrates.str.replace('%', '')
+        winrates = round(winrates.astype('float')/100, 4)
+
+        if save:
+            winrates.to_csv('./data/win_rates.csv', index=False)
+
+    elif path.exists('./data/win_rates.csv'):
+        winrates = pd.read_csv('./data/win_rates.csv',
+                               header=None,
+                               squeeze=True)
+    else:
+        print('win_rates.csv file cannot be found!')
+        winrates = []
+
+    return winrates

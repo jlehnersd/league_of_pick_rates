@@ -25,6 +25,7 @@ import chromedriver_binary
 from src.get_league_data import get_champion_names
 from src.get_league_data import get_champion_release_dates
 from src.get_league_data import get_number_of_skins
+from src.get_league_data import get_win_rates
 
 
 champ_names = get_champion_names(scrape=False, save=False)
@@ -32,3 +33,5 @@ champ_names = get_champion_names(scrape=False, save=False)
 champ_release_dates = get_champion_release_dates(scrape=False, save=False)
 
 num_skins = get_number_of_skins(champ_names, scrape=False, save=False)
+
+win_rates = get_win_rates(scrape=False, save=False)
