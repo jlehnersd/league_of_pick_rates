@@ -209,3 +209,68 @@ def get_win_rates(scrape=True, save=True):
         winrates = []
 
     return winrates
+
+def get_ban_rates(scrape=True, save=True):
+    """
+    Scrapes the North American champion ban rates on the day this fucntion
+      is executed from op.gg,
+      returns pandas series of champion ban rates as floats
+
+    Parameters
+    ----------
+    scrape : boolean
+             Attempt to scrape champion ban rates for current day?
+    save   : boolean
+             Save list of champion ban rates for current day as csv file?
+
+    Returns
+    -------
+    banrates : pandas series
+               Contains champion ban rates for current day as floats
+    """
+
+    if scrape:
+        champstats_url = 'https://na.op.gg/statistics/champion/'
+        today_xpath = '//*[@id="recent_today"]/span/span'
+        banrate_xpath = '//*[@id="rate_ban"]/span/span'
+        champ_xpath = '//*[@id="ChampionStatsTable"]/table/thead/tr/th[2]/div'
+
+        driver = webdriver.Chrome()
+        driver.get(champstats_url)
+
+        # Select stats for current day
+        today_button = driver.find_element_by_xpath(today_xpath)
+        today_button.click()
+
+        # Select win rates
+        banrate_button = driver.find_element_by_xpath(banrate_xpath)
+        banrate_button.click()
+
+        # Sort win rates by champion in alphabetical order
+        champ_button = driver.find_element_by_xpath(champ_xpath)
+        champ_button.click()
+        champ_button = driver.find_element_by_xpath(champ_xpath)
+        champ_button.click()
+
+        # Scrape win rates
+        banrates = pd.read_html(driver.page_source)[1]
+        banrates = banrates['Ban ratio per game']
+
+        driver.close()
+
+        # Convert win rates to float
+        banrates = banrates.str.replace('%', '')
+        banrates = round(banrates.astype('float')/100, 4)
+
+        if save:
+            banrates.to_csv('./data/ban_rates.csv', index=False)
+
+    elif path.exists('./data/ban_rates.csv'):
+        banrates = pd.read_csv('./data/ban_rates.csv',
+                               header=None,
+                               squeeze=True)
+    else:
+        print('ban_rates.csv file cannot be found!')
+        banrates = []
+
+    return banrates
