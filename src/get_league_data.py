@@ -210,6 +210,7 @@ def get_win_rates(scrape=True, save=True):
 
     return winrates
 
+
 def get_ban_rates(scrape=True, save=True):
     """
     Scrapes the North American champion ban rates on the day this fucntion
@@ -340,3 +341,75 @@ def get_pick_rates(scrape=True, save=True):
         pickrates = []
 
     return pickrates
+
+
+def get_last_patch_change(names, scrape=True, save=True):
+    """
+    Scrapes the last patch in which each champion was changed from League Wiki,
+      returns pandas series of patch versions as strings
+
+    Parameters
+    ----------
+    names  : pandas series
+             Contains all of the champion names as strings
+    scrape : boolean
+             Attempt to scrape last patch in which each champion was changed?
+    save   : boolean
+             Save list of patch versions as csv file?
+
+    Returns
+    -------
+    last_patch : pandas series
+                 Contains patch versions as strings
+    """
+
+    if scrape:
+        # Set up selenium web driver
+        driver = webdriver.Chrome()
+
+        # Get patch when champion was last changed
+        last_patch = []
+        for name in names:
+            name = name.replace(' ', '_')
+            champ_url = f'https://lol.gamepedia.com/{name}#Patch_History'
+            driver.get(champ_url)
+            time.sleep(1)
+
+            soup = BeautifulSoup(driver.page_source, 'html.parser')
+
+            history = [link for link in soup.find_all('a')
+                       if '>v1.' in str(link) or 'Patch 1.' in str(link)
+                       or '>v2.' in str(link) or 'Patch 2.' in str(link)
+                       or '>v3.' in str(link) or 'Patch 3.' in str(link)
+                       or '>v4.' in str(link) or 'Patch 4.' in str(link)
+                       or '>v5.' in str(link) or 'Patch 5.' in str(link)
+                       or '>v6.' in str(link) or 'Patch 6.' in str(link)
+                       or '>v7.' in str(link) or 'Patch 7.' in str(link)
+                       or '>v8.' in str(link) or 'Patch 8.' in str(link)
+                       or '>v9.' in str(link) or 'Patch 9.' in str(link)]
+
+            most_recent = history[0]
+            most_recent = str(most_recent)[-8:-4]
+            last_patch.append(most_recent)
+
+        driver.close()
+
+        for idx, patch in enumerate(last_patch):
+            last_patch[idx] = patch.replace('v', '')
+        for idx, patch in enumerate(last_patch):
+            last_patch[idx] = patch.replace(' ', '')
+
+        last_patch = pd.Series(last_patch)
+
+        if save:
+            last_patch.to_csv('./data/last_patch.csv', index=False)
+
+    elif path.exists('./data/last_patch.csv'):
+        last_patch = pd.read_csv('./data/last_patch.csv',
+                                 header=None,
+                                 squeeze=True)
+    else:
+        print('last_patch.csv file cannot be found!')
+        last_patch = []
+
+    return last_patch
