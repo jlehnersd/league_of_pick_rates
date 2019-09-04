@@ -274,3 +274,69 @@ def get_ban_rates(scrape=True, save=True):
         banrates = []
 
     return banrates
+
+
+def get_pick_rates(scrape=True, save=True):
+    """
+    Scrapes the North American champion pick rates on the day this fucntion
+      is executed from op.gg,
+      returns pandas series of champion pick rates as floats
+
+    Parameters
+    ----------
+    scrape : boolean
+             Attempt to scrape champion pick rates for current day?
+    save   : boolean
+             Save list of champion pick rates for current day as csv file?
+
+    Returns
+    -------
+    pickrates : pandas series
+               Contains champion pick rates for current day as floats
+    """
+
+    if scrape:
+        champstats_url = 'https://na.op.gg/statistics/champion/'
+        today_xpath = '//*[@id="recent_today"]/span/span'
+        pickrate_xpath = '//*[@id="rate_pick"]/span/span'
+        champ_xpath = '//*[@id="ChampionStatsTable"]/table/thead/tr/th[2]/div'
+
+        driver = webdriver.Chrome()
+        driver.get(champstats_url)
+
+        # Select stats for current day
+        today_button = driver.find_element_by_xpath(today_xpath)
+        today_button.click()
+
+        # Select win rates
+        pickrate_button = driver.find_element_by_xpath(pickrate_xpath)
+        pickrate_button.click()
+
+        # Sort win rates by champion in alphabetical order
+        champ_button = driver.find_element_by_xpath(champ_xpath)
+        champ_button.click()
+        champ_button = driver.find_element_by_xpath(champ_xpath)
+        champ_button.click()
+
+        # Scrape win rates
+        pickrates = pd.read_html(driver.page_source)[1]
+        pickrates = pickrates['Pick ratio per game']
+
+        driver.close()
+
+        # Convert win rates to float
+        pickrates = pickrates.str.replace('%', '')
+        pickrates = round(pickrates.astype('float')/100, 4)
+
+        if save:
+            pickrates.to_csv('./data/pick_rates.csv', index=False)
+
+    elif path.exists('./data/pick_rates.csv'):
+        pickrates = pd.read_csv('./data/pick_rates.csv',
+                                header=None,
+                                squeeze=True)
+    else:
+        print('pick_rates.csv file cannot be found!')
+        pickrates = []
+
+    return pickrates
