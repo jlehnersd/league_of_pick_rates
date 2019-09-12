@@ -202,7 +202,7 @@ def get_win_rates(scrape=True, save=True):
         champstats_url = 'https://na.op.gg/statistics/champion/'
         today_xpath = '//*[@id="recent_today"]/span/span'
         winrate_xpath = '//*[@id="rate_win"]/span/span'
-        champ_xpath = '//*[@id="ChampionStatsTable"]/table/thead/tr/th[2]/div'
+        scroll_down = "window.scrollTo(0, document.body.scrollHeight);"
 
         driver = webdriver.Chrome()
         driver.get(champstats_url)
@@ -215,14 +215,17 @@ def get_win_rates(scrape=True, save=True):
         winrate_button = driver.find_element_by_xpath(winrate_xpath)
         winrate_button.click()
 
-        # Sort win rates by champion in alphabetical order
-        champion_button = driver.find_element_by_xpath(champ_xpath)
-        champion_button.click()
-        champion_button.click()
+        # Scroll to bottom of page
+        driver.execute_script(scroll_down)
+        time.sleep(10)
 
         # Scrape win rates
         winrates = pd.read_html(driver.page_source)[1]
-        winrates = winrates['Win rate']
+        winrates = winrates[['Champion.1', 'Win rate']]
+
+        # Sort win rates by champion in alphabetical order
+        winrates.sort_values(by='Champion.1', inplace=True)
+        winrates = winrates['Win rate'].reset_index()['Win rate']
 
         driver.close()
 
@@ -267,7 +270,7 @@ def get_ban_rates(scrape=True, save=True):
         champstats_url = 'https://na.op.gg/statistics/champion/'
         today_xpath = '//*[@id="recent_today"]/span/span'
         banrate_xpath = '//*[@id="rate_ban"]/span/span'
-        champ_xpath = '//*[@id="ChampionStatsTable"]/table/thead/tr/th[2]/div'
+        scroll_down = "window.scrollTo(0, document.body.scrollHeight);"
 
         driver = webdriver.Chrome()
         driver.get(champstats_url)
@@ -276,23 +279,25 @@ def get_ban_rates(scrape=True, save=True):
         today_button = driver.find_element_by_xpath(today_xpath)
         today_button.click()
 
-        # Select win rates
+        # Select ban rates
         banrate_button = driver.find_element_by_xpath(banrate_xpath)
         banrate_button.click()
+    
+        # Scroll to bottom of page
+        driver.execute_script(scroll_down)
+        time.sleep(10)
 
-        # Sort win rates by champion in alphabetical order
-        champ_button = driver.find_element_by_xpath(champ_xpath)
-        champ_button.click()
-        champ_button = driver.find_element_by_xpath(champ_xpath)
-        champ_button.click()
-
-        # Scrape win rates
+        # Scrape ban rates
         banrates = pd.read_html(driver.page_source)[1]
-        banrates = banrates['Ban ratio per game']
+        banrates = banrates[['Champion.1', 'Ban ratio per game']]
+
+        # Sort ban rates by champion in alphabetical order
+        banrates.sort_values(by='Champion.1', inplace=True)
+        banrates = banrates['Ban ratio per game'].reset_index()['Ban ratio per game']
 
         driver.close()
 
-        # Convert win rates to float
+        # Convert ban rates to float
         banrates = banrates.str.replace('%', '')
         banrates = round(banrates.astype('float')/100, 4)
 
@@ -333,7 +338,7 @@ def get_pick_rates(scrape=True, save=True):
         champstats_url = 'https://na.op.gg/statistics/champion/'
         today_xpath = '//*[@id="recent_today"]/span/span'
         pickrate_xpath = '//*[@id="rate_pick"]/span/span'
-        champ_xpath = '//*[@id="ChampionStatsTable"]/table/thead/tr/th[2]/div'
+        scroll_down = "window.scrollTo(0, document.body.scrollHeight);"
 
         driver = webdriver.Chrome()
         driver.get(champstats_url)
@@ -342,23 +347,25 @@ def get_pick_rates(scrape=True, save=True):
         today_button = driver.find_element_by_xpath(today_xpath)
         today_button.click()
 
-        # Select win rates
+        # Select pick rates
         pickrate_button = driver.find_element_by_xpath(pickrate_xpath)
         pickrate_button.click()
 
-        # Sort win rates by champion in alphabetical order
-        champ_button = driver.find_element_by_xpath(champ_xpath)
-        champ_button.click()
-        champ_button = driver.find_element_by_xpath(champ_xpath)
-        champ_button.click()
+        # Scroll to bottom of page
+        driver.execute_script(scroll_down)
+        time.sleep(10)
 
-        # Scrape win rates
+        # Scrape pick rates
         pickrates = pd.read_html(driver.page_source)[1]
-        pickrates = pickrates['Pick ratio per game']
+        pickrates = pickrates[['Champion.1', 'Pick ratio per game']]
+
+        # Sort ban rates by champion in alphabetical order
+        pickrates.sort_values(by='Champion.1', inplace=True)
+        pickrates = pickrates['Pick ratio per game'].reset_index()['Pick ratio per game']
 
         driver.close()
 
-        # Convert win rates to float
+        # Convert pick rates to float
         pickrates = pickrates.str.replace('%', '')
         pickrates = round(pickrates.astype('float')/100, 4)
 

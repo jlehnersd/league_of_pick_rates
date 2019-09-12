@@ -38,12 +38,12 @@ champ_names = get_champion_names(scrape=False, save=False)
 
 champ_release_dates = get_champion_release_dates(scrape=False, save=False)
 
-num_skins = get_number_of_skins(champ_names)
+num_skins = get_number_of_skins(champ_names, scrape=False, save=False)
 
-win_rates = get_win_rates(scrape=False, save=False)
+win_rates = get_win_rates()
 
-ban_rates = get_ban_rates(scrape=False, save=False)
+ban_rates = get_ban_rates()
 
-pick_rates = get_pick_rates(scrape=False, save=False)
+pick_rates = get_pick_rates()
 
-last_patch = get_last_patch_change(champ_names)
+last_patch = get_last_patch_change(champ_names, scrape=False, save=False)
