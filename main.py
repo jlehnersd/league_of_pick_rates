@@ -29,13 +29,16 @@ from src.get_league_data import get_win_rates
 from src.get_league_data import get_ban_rates
 from src.get_league_data import get_pick_rates
 from src.get_league_data import get_last_patch_change
+from src.get_league_data import get_scrape_date
 
+
+date_data = get_scrape_date()
 
 champ_names = get_champion_names(scrape=False, save=False)
 
 champ_release_dates = get_champion_release_dates(scrape=False, save=False)
 
-num_skins = get_number_of_skins(champ_names, scrape=False, save=False)
+num_skins = get_number_of_skins(champ_names)
 
 win_rates = get_win_rates(scrape=False, save=False)
 
@@ -43,4 +46,4 @@ ban_rates = get_ban_rates(scrape=False, save=False)
 
 pick_rates = get_pick_rates(scrape=False, save=False)
 
-last_patch = get_last_patch_change(champ_names, scrape=False, save=False)
+last_patch = get_last_patch_change(champ_names)

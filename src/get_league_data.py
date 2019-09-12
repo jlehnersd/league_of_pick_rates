@@ -7,10 +7,43 @@ Created on Thu Aug 29 13:17:50 2019
 """
 
 import pandas as pd
+import datetime
 from selenium import webdriver
 import time
 from bs4 import BeautifulSoup
 from os import path
+
+
+def get_scrape_date():
+    """
+    Records the date on which data was scraped
+
+    Parameters
+    ----------
+    None
+
+    Returns
+    -------
+    date_data : string
+                Date that data was scraped in the format YYYY-MM-DD
+    """
+
+    # Get current date and time
+    now = datetime.datetime.now()
+    year_scraped = str(now.year)
+    month_scraped = str(now.month)
+    day_scraped = str(now.day)
+
+    # Add leading zeroes to single-digit months and days
+    if len(month_scraped) == 1:
+        month_scraped = '0' + month_scraped
+    if len(day_scraped) == 1:
+        day_scraped = '0' + day_scraped
+
+    # Construct date string
+    date_data = year_scraped + '-' + month_scraped + '-' + day_scraped
+
+    return date_data
 
 
 def get_champion_names(scrape=True, save=True):
