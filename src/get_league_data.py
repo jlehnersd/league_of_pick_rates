@@ -46,7 +46,7 @@ def get_scrape_date():
     return date_data
 
 
-def get_champion_names(scrape=True, save=True):
+def get_champion_names(scrape=False, save=False):
     """
     Scrapes champion names from League of Legends Wiki,
       returns pandas series of names as strings
@@ -87,7 +87,7 @@ def get_champion_names(scrape=True, save=True):
     return names
 
 
-def get_champion_release_dates(scrape=True, save=True):
+def get_champion_release_dates(scrape=False, save=False):
     """
     Scrapes champion release dates from League of Legends Wiki,
       returns pandas series of dates as strings
@@ -125,7 +125,7 @@ def get_champion_release_dates(scrape=True, save=True):
     return dates
 
 
-def get_number_of_skins(names, scrape=True, save=True):
+def get_number_of_skins(names, scrape=False, save=False):
     """
     Scrapes number of champion skins from League of Legends Wiki,
       returns pandas series of number of skins as integers
@@ -146,8 +146,10 @@ def get_number_of_skins(names, scrape=True, save=True):
     """
 
     if scrape:
+        style = 'display:inline-block; margin:5px; width:342px'
+
         # Set up selenium web driver
-        driver = webdriver.Chrome()
+        driver = webdriver.Chrome('./src/utils/chromedriver')
 
         # Get number of skins
         num_skins = []
@@ -159,8 +161,7 @@ def get_number_of_skins(names, scrape=True, save=True):
 
             soup = BeautifulSoup(driver.page_source, 'html.parser')
 
-            num_skins.append(len(soup.find_all('div',
-                {'style':'display:inline-block; margin:5px; width:342px'})))
+            num_skins.append(len(soup.find_all('div', {'style': style})))
 
         num_skins = pd.Series(num_skins)
         driver.close()
@@ -179,7 +180,7 @@ def get_number_of_skins(names, scrape=True, save=True):
     return num_skins
 
 
-def get_win_rates(scrape=True, save=True):
+def get_win_rates(date, scrape=False, save=False):
     """
     Scrapes the North American champion win rates on the day this fucntion
       is executed from op.gg,
@@ -198,13 +199,16 @@ def get_win_rates(scrape=True, save=True):
                Contains champion win rates for current day as floats
     """
 
+    date = date.replace('-', '')
+
     if scrape:
         champstats_url = 'https://na.op.gg/statistics/champion/'
         today_xpath = '//*[@id="recent_today"]/span/span'
         winrate_xpath = '//*[@id="rate_win"]/span/span'
         scroll_down = "window.scrollTo(0, document.body.scrollHeight);"
 
-        driver = webdriver.Chrome()
+        # Set up selenium web driver
+        driver = webdriver.Chrome('./src/utils/chromedriver')
         driver.get(champstats_url)
 
         # Select stats for current day
@@ -234,10 +238,10 @@ def get_win_rates(scrape=True, save=True):
         winrates = round(winrates.astype('float')/100, 4)
 
         if save:
-            winrates.to_csv('./data/win_rates.csv', index=False)
+            winrates.to_csv(f'./data/win/win_rates_{date}.csv', index=False)
 
-    elif path.exists('./data/win_rates.csv'):
-        winrates = pd.read_csv('./data/win_rates.csv',
+    elif path.exists('./data/win/win_rates.csv'):
+        winrates = pd.read_csv('./data/win/win_rates.csv',
                                header=None,
                                squeeze=True)
     else:
@@ -247,7 +251,7 @@ def get_win_rates(scrape=True, save=True):
     return winrates
 
 
-def get_ban_rates(scrape=True, save=True):
+def get_ban_rates(date, scrape=False, save=False):
     """
     Scrapes the North American champion ban rates on the day this fucntion
       is executed from op.gg,
@@ -266,13 +270,16 @@ def get_ban_rates(scrape=True, save=True):
                Contains champion ban rates for current day as floats
     """
 
+    date = date.replace('-', '')
+
     if scrape:
         champstats_url = 'https://na.op.gg/statistics/champion/'
         today_xpath = '//*[@id="recent_today"]/span/span'
         banrate_xpath = '//*[@id="rate_ban"]/span/span'
         scroll_down = "window.scrollTo(0, document.body.scrollHeight);"
 
-        driver = webdriver.Chrome()
+        # Set up selenium web driver
+        driver = webdriver.Chrome('./src/utils/chromedriver')
         driver.get(champstats_url)
 
         # Select stats for current day
@@ -282,7 +289,7 @@ def get_ban_rates(scrape=True, save=True):
         # Select ban rates
         banrate_button = driver.find_element_by_xpath(banrate_xpath)
         banrate_button.click()
-    
+
         # Scroll to bottom of page
         driver.execute_script(scroll_down)
         time.sleep(10)
@@ -302,9 +309,9 @@ def get_ban_rates(scrape=True, save=True):
         banrates = round(banrates.astype('float')/100, 4)
 
         if save:
-            banrates.to_csv('./data/ban_rates.csv', index=False)
+            banrates.to_csv(f'./data/ban/ban_rates_{date}.csv', index=False)
 
-    elif path.exists('./data/ban_rates.csv'):
+    elif path.exists('./data/ban/ban_rates.csv'):
         banrates = pd.read_csv('./data/ban_rates.csv',
                                header=None,
                                squeeze=True)
@@ -315,7 +322,7 @@ def get_ban_rates(scrape=True, save=True):
     return banrates
 
 
-def get_pick_rates(scrape=True, save=True):
+def get_pick_rates(date, scrape=False, save=False):
     """
     Scrapes the North American champion pick rates on the day this fucntion
       is executed from op.gg,
@@ -334,13 +341,15 @@ def get_pick_rates(scrape=True, save=True):
                Contains champion pick rates for current day as floats
     """
 
+    date = date.replace('-', '')
+
     if scrape:
         champstats_url = 'https://na.op.gg/statistics/champion/'
         today_xpath = '//*[@id="recent_today"]/span/span'
         pickrate_xpath = '//*[@id="rate_pick"]/span/span'
         scroll_down = "window.scrollTo(0, document.body.scrollHeight);"
 
-        driver = webdriver.Chrome()
+        driver = webdriver.Chrome('./src/utils/chromedriver')
         driver.get(champstats_url)
 
         # Select stats for current day
@@ -370,9 +379,9 @@ def get_pick_rates(scrape=True, save=True):
         pickrates = round(pickrates.astype('float')/100, 4)
 
         if save:
-            pickrates.to_csv('./data/pick_rates.csv', index=False)
+            pickrates.to_csv(f'./data/pick/pick_rates_{date}.csv', index=False)
 
-    elif path.exists('./data/pick_rates.csv'):
+    elif path.exists('./data/pick/pick_rates.csv'):
         pickrates = pd.read_csv('./data/pick_rates.csv',
                                 header=None,
                                 squeeze=True)
@@ -383,7 +392,7 @@ def get_pick_rates(scrape=True, save=True):
     return pickrates
 
 
-def get_last_patch_change(names, scrape=True, save=True):
+def get_last_patch_change(names, scrape=False, save=False):
     """
     Scrapes the last patch in which each champion was changed from League Wiki,
       returns pandas series of patch versions as strings
@@ -405,7 +414,7 @@ def get_last_patch_change(names, scrape=True, save=True):
 
     if scrape:
         # Set up selenium web driver
-        driver = webdriver.Chrome()
+        driver = webdriver.Chrome('./src/utils/chromedriver')
 
         # Get patch when champion was last changed
         last_patch = []
