@@ -1,2 +1,4 @@
-# league_of_pick_rates
-Linear regression machine learning model to predict League of Legends champion popularity
+# League of Pick Rates
+--------------------------------------------------------
+
+Supervised regression problem
